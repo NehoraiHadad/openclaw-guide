@@ -265,6 +265,72 @@ Reference skill folder paths with `{baseDir}` placeholder.
 
 ---
 
+## Bot-Orchestrated Workflow Skills
+
+A powerful pattern: skills that teach the bot to **orchestrate workflows** using its existing tools, rather than creating new scripts.
+
+### The Pattern
+
+Instead of writing new automation scripts, create a skill that instructs the bot to:
+1. Run an existing script via `exec` tool
+2. Parse the output (JSON, text, etc.)
+3. Use native bot tools (`message`, `poll`, etc.) to act on results
+
+### Example: WhatsApp Group Survey
+
+```yaml
+---
+name: whatsapp-survey
+description: Send WhatsApp group surveys to Telegram for curation
+user-invocable: true
+---
+
+# WhatsApp Group Survey Skill
+
+When the user asks to see WhatsApp groups:
+
+## Step 1: Run the filter script
+Use exec tool to run:
+\`\`\`bash
+node ~/clawd/scripts/whatsapp/filter-groups.mjs personal --cached --json [--filter "keyword"]
+\`\`\`
+
+## Step 2: Parse the output
+The script outputs a JSON array of groups.
+
+## Step 3: Send polls to the user
+For each batch of up to 10 groups, use the message tool to send a poll.
+
+## Step 4: Save the mapping
+Write the number→group mapping for later processing.
+```
+
+### Benefits of This Approach
+
+1. **No new scripts needed** - Reuses existing tools and scripts
+2. **Bot handles messaging** - Uses native `message` tool (more reliable than custom scripts)
+3. **Flexible** - Bot can adapt to different inputs, filters, edge cases
+4. **Maintainable** - Just one SKILL.md file to update
+
+### Best Practices for Workflow Skills
+
+| Practice | Why |
+|----------|-----|
+| **No hardcoded user IDs** | Skills may be shared publicly |
+| **Use general terms** | "send to the user" not "send to 12345" |
+| **Reference existing scripts** | Don't duplicate logic |
+| **Let bot adapt** | Write instructions, not rigid procedures |
+| **Include example flows** | Show the expected interaction pattern |
+
+### When to Use This Pattern
+
+- Workflows that combine script output with bot messaging
+- Tasks that need human-in-the-loop (polls, confirmations)
+- Operations that benefit from bot's ability to adapt to edge cases
+- Multi-step processes that span tools (exec → parse → message)
+
+---
+
 ## Continuous Improvement
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/tools/skills to check for updates.
