@@ -504,6 +504,28 @@ These scripts can potentially be converted to agent tools:
 2. Or use the exec tool to run scripts and parse output
 3. Or request Moltbot to add native support for these operations
 
+## Known Limitations
+
+### Activity Timestamps (Last Message Time)
+
+**Problem:** You cannot query "when was the last message in this group" on-demand.
+
+**Why:** The `conversationTimestamp` field (which tracks last message time) is only delivered during **initial QR pairing** via the `messaging-history.set` event. After that:
+- `fetchMessageHistory()` requires an existing message key as anchor
+- `chats.update` events only fire on new activity
+- There's no API to query historical timestamps
+
+**Workarounds:**
+
+| Approach | Trade-off |
+|----------|-----------|
+| Re-pair (scan QR) | One-time sync gets all timestamps |
+| Build local DB | Listen to `messages.upsert`, track over time |
+| Use metadata heuristics | `subjectTime`/`descTime` show admin activity, not messages |
+| Manual curation | Filter by keyword, manually identify active groups |
+
+**Reference:** The [whatsapp-mcp-ts](https://github.com/jlucaso1/whatsapp-mcp-ts) project builds a SQLite database by listening to message events, enabling activity-based sorting.
+
 ## Troubleshooting
 
 | Issue | Solution |

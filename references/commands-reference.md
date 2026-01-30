@@ -90,6 +90,57 @@ moltbot sessions --json
 | `/new` | Start new session |
 | `/reset` | Reset current session |
 
+## Message Commands
+
+Send messages, polls, and perform channel actions via CLI.
+
+### Send Messages
+
+```bash
+# Send text message
+clawdbot message send --channel telegram --target @username --message "Hello"
+clawdbot message send --channel whatsapp --target +15555550123 --message "Hi"
+
+# Send with media
+clawdbot message send --target +15555550123 --message "Photo" --media photo.jpg
+
+# Telegram with inline buttons
+clawdbot message send --channel telegram --target @username \
+  --message "Choose:" \
+  --buttons '[[{"text":"Yes","callback_data":"yes"},{"text":"No","callback_data":"no"}]]'
+```
+
+### Polls (Telegram/Discord)
+
+```bash
+# Single-select poll
+clawdbot message poll --channel telegram --target @username \
+  --poll-question "Favorite color?" \
+  --poll-option "Red" --poll-option "Blue" --poll-option "Green"
+
+# Multi-select poll (users can pick multiple)
+clawdbot message poll --channel telegram --target @username \
+  --poll-question "Which apply?" \
+  --poll-multi \
+  --poll-option "Option A" --poll-option "Option B" --poll-option "Option C"
+```
+
+Poll options: 2-12 choices per poll, `--poll-multi` enables multiple selections.
+
+### Other Actions
+
+```bash
+# React to message
+clawdbot message react --channel discord --target 123 --message-id 456 --emoji "✅"
+
+# Read recent messages
+clawdbot message read --channel telegram --target @username --limit 10
+
+# Edit/delete
+clawdbot message edit --channel telegram --target @username --message-id 123 --message "Updated"
+clawdbot message delete --channel telegram --target @username --message-id 123
+```
+
 ## Cron Commands
 
 ```bash
