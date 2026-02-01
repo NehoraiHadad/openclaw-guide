@@ -1,7 +1,7 @@
 ---
 name: OpenClaw Guide
 description: "PROACTIVE LEARNING SKILL - Use this skill AND update it during work. Trigger when user mentions: openclaw, clawdbot, moltbot, molt.bot, lobster bot, gateway, openclaw.json, clawdbot.json, moltbot.json, channel config, WhatsApp bot, Telegram bot, Discord bot, Slack bot, iMessage, Signal, exec tool, browser tool, sessions, sub-agents, multi-agent, cron, webhooks, agent routing, sandbox, skills, ClawdHub, heartbeat, bootstrap files, AGENTS.md, SOUL.md, memory files. Also trigger on: gateway restart, doctor command, channel login, session management, context overflow, cooldown, auth profiles, model fallbacks. This is a LEARNING SKILL: when you discover new OpenClaw behavior or fix issues, IMMEDIATELY update this skill file."
-version: 0.3.1
+version: 0.3.2
 ---
 
 # OpenClaw Complete Guide (formerly Clawdbot/Moltbot)
@@ -259,6 +259,64 @@ Routing uses deterministic, most-specific-wins matching:
 
 **Reference:** See `references/configuration.md` for complete config reference.
 
+## Model Configuration (Learned 2026-02-01)
+
+### Available Gemini Models
+
+| Model | Speed | Quality | Notes |
+|-------|-------|---------|-------|
+| `google-gemini-cli/gemini-2.5-flash` | Fast | Good | Recommended for responsive bots |
+| `google-gemini-cli/gemini-2.5-pro` | Slow | Excellent | Can hang on some machines |
+| `google-gemini-cli/gemini-3-flash-preview` | Fast | Good | Experimental, newest |
+| `google-gemini-cli/gemini-3-pro-preview` | Slow | Excellent | Experimental, newest |
+
+### Changing Models
+
+**Method 1: CLI (fastest)**
+```bash
+openclaw config set agents.defaults.model.primary google-gemini-cli/gemini-3-flash-preview
+openclaw gateway restart
+```
+
+**Method 2: Edit config directly**
+```bash
+nano ~/.openclaw/openclaw.json
+# Edit agents.defaults.model.primary
+openclaw gateway restart
+```
+
+**Method 3: Dashboard**
+Open `http://127.0.0.1:18789/` in browser
+
+### Model Fallback Configuration
+
+```json5
+{
+  agents: {
+    defaults: {
+      model: {
+        "primary": "google-gemini-cli/gemini-3-flash-preview",
+        "fallbacks": [
+          "google-gemini-cli/gemini-3-pro-preview",
+          "google-gemini-cli/gemini-2.5-flash",
+          "google-gemini-cli/gemini-2.5-pro"
+        ]
+      }
+    }
+  }
+}
+```
+
+**IMPORTANT:** Fallback only triggers on **failures/timeouts**, NOT on slowness. If the primary model is slow but responding, you'll wait the full `timeoutSeconds` (default: 600s = 10 minutes) before fallback kicks in.
+
+### Recommendation
+
+For responsive bots, use Flash models as primary:
+- `gemini-3-flash-preview` (newest, experimental)
+- `gemini-2.5-flash` (stable, reliable)
+
+Use Pro models only when quality is critical and you can tolerate delays.
+
 ## Skills System
 
 Skills extend agent capabilities through SKILL.md files.
@@ -436,7 +494,7 @@ Custom scripts for operations not supported by Moltbot's API can be placed in th
     └── passive-monitor.mjs  # Monitor messages passively
 ```
 
-**Default location:** `~/clawd/scripts/whatsapp/` (or wherever `agents.defaults.workspace` points)
+**Default location:** `<workspace>/scripts/whatsapp/` (wherever `agents.defaults.workspace` points)
 
 These scripts use direct Baileys access for operations like:
 - Listing all WhatsApp groups (not available via Moltbot API)
@@ -461,17 +519,16 @@ See `references/baileys-direct-access.md` for script documentation and available
 
 ### WhatsApp Group Discovery
 
-**Problem:** `clawdbot directory groups list` only reads from config, not live WhatsApp data.
+**Problem:** `openclaw directory groups list` only reads from config, not live WhatsApp data.
 
 **Workaround:** Use the Baileys scripts in the workspace:
 ```bash
-# List all groups (briefly disconnects Moltbot)
-node ~/clawd/scripts/whatsapp/list-groups.mjs personal
+# List all groups (briefly disconnects gateway)
+node <workspace>/scripts/whatsapp/list-groups.mjs <account>
 
 # Filter by keywords (uses cached data, no reconnect)
-node ~/clawd/scripts/whatsapp/filter-groups.mjs personal --cached --filter גן,בית\ ספר
-node ~/clawd/scripts/whatsapp/filter-groups.mjs personal --cached --filter work,עבודה
-node ~/clawd/scripts/whatsapp/filter-groups.mjs personal --cached --min-participants 50
+node <workspace>/scripts/whatsapp/filter-groups.mjs <account> --cached --filter keyword1,keyword2
+node <workspace>/scripts/whatsapp/filter-groups.mjs <account> --cached --min-participants 50
 ```
 
 See `references/baileys-direct-access.md` for full documentation.
@@ -479,6 +536,32 @@ See `references/baileys-direct-access.md` for full documentation.
 ### Telegram vs WhatsApp Action Gating
 
 Telegram supports `actions.sendMessage: false` to prevent sending messages while still receiving. WhatsApp does NOT have this feature.
+
+### Gemini API Hanging Without Timeout (Learned 2026-02-01)
+
+**Problem:** Bot shows "typing..." indicator but never responds. Logs show request started but no completion or error.
+
+**Cause:** Gemini API (especially Pro models) can hang indefinitely without returning a response or triggering a timeout. The typing indicator stops after 2 minutes (TTL), but the request continues waiting.
+
+**Symptoms:**
+- Typing indicator appears for 2 minutes then disappears
+- No response from bot
+- Logs show `embedded run start` but no `embedded run complete`
+- Request hangs for 10+ minutes
+
+**Solutions:**
+1. **Use Flash models** - More responsive than Pro models:
+   - `gemini-3-flash-preview` or `gemini-2.5-flash` as primary
+2. **Reduce timeout** - Set lower `timeoutSeconds` to trigger fallback sooner:
+   ```json
+   "timeoutSeconds": 120
+   ```
+3. **Restart gateway** - Cancels stuck requests:
+   ```bash
+   openclaw gateway restart
+   ```
+
+**Note:** Fallback only triggers on timeout/error, not slowness. If the API is slow but not failing, you wait the full timeout.
 
 ### Context Overflow Despite Config Change (Learned 2026-01-31)
 
@@ -517,17 +600,46 @@ openclaw gateway restart
 
 **Solution:**
 1. Add a different provider as fallback (e.g., `anthropic/claude-sonnet-4`)
-2. Add multiple auth profiles for the same provider: `clawdbot models auth login --provider google-gemini-cli`
+2. Add multiple auth profiles for the same provider: `openclaw models auth login --provider google-gemini-cli`
 
 ### Timeouts Treated as Rate Limits (Learned 2026-01-31)
 
 **Problem:** API timeouts trigger auth profile cooldowns even when not actually rate-limited.
 
-**Cause:** Clawdbot can't distinguish slow API from rate limiting, so treats all timeouts as "possible rate limit" with exponential backoff (1m → 5m → 25m → 1h).
+**Cause:** OpenClaw can't distinguish slow API from rate limiting, so treats all timeouts as "possible rate limit" with exponential backoff (1m → 5m → 25m → 1h).
 
 **Mitigation:**
 - Increase `timeoutSeconds` for large-context requests (300-600s for 100k+ tokens)
 - Add multiple auth profiles for automatic rotation during cooldowns
+
+### Manually Clear Cooldowns (Learned 2026-02-01)
+
+**Problem:** All auth profiles in cooldown, bot can't respond. Error may show misleading "Context overflow" message.
+
+**Solution:** Edit `~/.openclaw/agents/main/agent/auth-profiles.json` and remove cooldown data:
+
+```bash
+# Find usageStats section and remove:
+# - cooldownUntil
+# - errorCount (set to 0)
+# - lastFailureAt
+# - failureCounts
+
+# Then restart gateway:
+openclaw gateway restart
+```
+
+**What to remove from each profile in `usageStats`:**
+```json
+{
+  "usageStats": {
+    "google-gemini-cli:email@gmail.com": {
+      "lastUsed": 1769922923662,
+      "errorCount": 0  // Reset to 0, remove cooldownUntil/lastFailureAt/failureCounts
+    }
+  }
+}
+```
 
 ## Migration from Clawdbot to OpenClaw (Learned 2026-02-01)
 
