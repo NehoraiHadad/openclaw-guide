@@ -10,11 +10,13 @@ Moltbot provides 50+ CLI commands for managing the gateway, channels, sessions, 
 
 | Command | Description |
 |---------|-------------|
-| `moltbot start` | Start the gateway daemon |
-| `moltbot stop` | Stop the gateway daemon |
-| `moltbot restart` | Restart the gateway |
-| `moltbot status` | Check gateway status |
-| `moltbot health` | Health check endpoint |
+| `clawdbot gateway start` | Start the gateway daemon |
+| `clawdbot gateway stop` | Stop the gateway daemon |
+| `clawdbot gateway restart` | Restart the gateway (v2026.1.24-3 verified) |
+| `clawdbot status` | Check gateway status |
+| `clawdbot health` | Health check endpoint |
+
+**Note (2026-01-31):** Top-level `clawdbot restart` does not exist in v2026.1.24-3. Use `clawdbot gateway restart` instead.
 
 ### Setup & Configuration
 

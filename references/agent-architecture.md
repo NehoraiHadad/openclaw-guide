@@ -109,22 +109,65 @@ Moltbot uses **deterministic, most-specific-wins routing**.
 
 ### Binding Configuration
 
+**IMPORTANT:** `bindings` is a **top-level key**, NOT under `agents`.
+
 ```json5
 {
-  agents: {
-    bindings: {
-      // Route specific WhatsApp number to research agent
-      "whatsapp:+15551234567": "research",
+  // bindings is at the ROOT level of moltbot.json
+  bindings: [
+    // Route WhatsApp channel to everyday agent
+    {
+      agentId: "chat",
+      match: { channel: "whatsapp" }
+    },
+    // Route Telegram to opus agent
+    {
+      agentId: "opus",
+      match: { channel: "telegram" }
+    },
+    // Route specific WhatsApp group to monitor agent
+    {
+      agentId: "monitor-school",
+      match: {
+        channel: "whatsapp",
+        accountId: "personal",
+        peer: {
+          kind: "group",
+          id: "120363000000000001@g.us"
+        }
+      }
+    },
+    // Route specific DM to premium agent
+    {
+      agentId: "premium",
+      match: {
+        channel: "whatsapp",
+        peer: {
+          kind: "dm",
+          id: "+15551234567"
+        }
+      }
+    }
+  ],
 
-      // Route Discord channel to main agent
-      "discord:channel:123456789": "main",
-
-      // Route Telegram group to untrusted agent
-      "telegram:group:-1001234567": "untrusted"
+  // Agent-to-agent communication (also at tools level)
+  tools: {
+    agentToAgent: {
+      enabled: true,
+      allow: ["monitor-active", "monitor-school"]
     }
   }
 }
 ```
+
+### Match Properties
+
+| Property | Description |
+|----------|-------------|
+| `channel` | Channel name: `whatsapp`, `telegram`, `discord`, `slack` |
+| `accountId` | Multi-account setups (e.g., `"personal"`, `"work"`) |
+| `peer.kind` | `"dm"` or `"group"` |
+| `peer.id` | WhatsApp JID (`...@g.us`), phone number, or channel ID |
 
 ### Key Principles
 
@@ -281,16 +324,23 @@ Agent-to-agent messaging is disabled by default. When enabled, requires explicit
 
 ## Group Chat Settings
 
-### Mention Patterns
+### Mention Patterns (AGENT LEVEL)
+
+**IMPORTANT:** `mentionPatterns` belongs on the **agent** (`agents.list[].groupChat.mentionPatterns`), NOT on channel groups. Channel groups only support `requireMention: true/false`.
 
 ```json5
 {
   agents: {
     list: [
       {
-        id: "main",
+        id: "monitor-school",
         groupChat: {
-          mentionPatterns: ["@clawd", "hey clawd", "clawd,"]
+          // Hebrew trigger patterns - agent only wakes on these keywords
+          mentionPatterns: ["להביא", "מחר", "שיעורי בית", "טיול", "ביטול", "תשלום"]
+        },
+        tools: {
+          allow: ["sessions_send"],
+          deny: ["whatsapp_send", "telegram_send"]
         }
       }
     ]
@@ -300,13 +350,66 @@ Agent-to-agent messaging is disabled by default. When enabled, requires explicit
 
 ### Per-Channel Group Settings
 
+Channel groups only support `requireMention`, NOT `mentionPatterns`:
+
 ```json5
 {
   channels: {
+    whatsapp: {
+      accounts: {
+        personal: {
+          groups: {
+            "*": { "requireMention": true },           // default: need @mention
+            "120363...@g.us": { "requireMention": false }  // this group: all messages
+          }
+        }
+      }
+    },
     telegram: {
       groups: {
         "*": { requireMention: true },
         "-1001234567": { requireMention: false }
+      }
+    }
+  }
+}
+```
+
+### Silent Monitor Pattern
+
+For a "silent" agent that monitors groups without responding in the group:
+
+1. Set `requireMention: false` on channel groups (receive all messages)
+2. Set `groupChat.mentionPatterns` on agent (filter by keywords)
+3. Restrict tools: `deny: ["whatsapp_send"]` (can't respond in group)
+4. Allow only `sessions_send` or `telegram_send` for alerts
+
+```json5
+{
+  agents: {
+    list: [{
+      id: "monitor-school",
+      groupChat: {
+        mentionPatterns: ["להביא", "מחר", "תשלום", "טיול"]
+      },
+      tools: {
+        allow: ["sessions_send", "telegram_send"],
+        deny: ["whatsapp_send"]
+      }
+    }]
+  },
+  bindings: [{
+    agentId: "monitor-school",
+    match: { channel: "whatsapp", accountId: "personal", peer: { kind: "group", id: "...@g.us" } }
+  }],
+  channels: {
+    whatsapp: {
+      accounts: {
+        personal: {
+          groups: {
+            "...@g.us": { "requireMention": false }
+          }
+        }
       }
     }
   }
@@ -376,9 +479,24 @@ Agent-to-agent messaging is disabled by default. When enabled, requires explicit
 
 ---
 
+## Local Documentation Reference
+
+The official multi-agent documentation is bundled with clawdbot at:
+```
+~/.nvm/versions/node/<version>/lib/node_modules/clawdbot/docs/concepts/multi-agent.md
+```
+
+Key examples from official docs:
+- Two WhatsApps → two agents
+- WhatsApp daily chat + Telegram deep work
+- Same channel, one peer to Opus
+- Family agent bound to a WhatsApp group (with tool restrictions)
+
+---
+
 ## Continuous Improvement
 
-**Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/ to check for updates.
+**Always verify with current docs:** Check the bundled docs at the clawdbot installation path, or fetch from https://docs.molt.bot/ to check for updates.
 
 
 When using Clawdbot and discovering undocumented features, corrections, or better practices:

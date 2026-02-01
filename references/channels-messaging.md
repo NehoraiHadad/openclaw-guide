@@ -281,6 +281,17 @@ Telegram supports disabling specific actions:
 
 **Note:** `actions.sendMessage: false` is Telegram-only. WhatsApp does NOT have this feature - it only has `actions.reactions`.
 
+### Polls (NOT SUPPORTED)
+
+**IMPORTANT:** Telegram polls are NOT supported via moltbot CLI. The `clawdbot message poll` command only works for Discord.
+
+Error when attempting: `Action poll is not supported for provider telegram`
+
+**Workarounds:**
+1. **Numbered lists** (recommended) - Send items as numbered list, user replies with numbers. Agent can do this directly via `clawdbot message send`.
+2. **Inline buttons** - Use buttons array (see above)
+3. **Direct Telegram API** - Call `sendPoll` endpoint via `curl`
+
 ### Streaming (Draft Bubbles)
 
 ```json5

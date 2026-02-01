@@ -134,20 +134,23 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 
       // Context
       contextTokens: 200000,
-      contextPruning: {
-        mode: "adaptive",                 // off|adaptive|aggressive
-        keepLastAssistants: 3,
-        softTrimRatio: 0.8,
-        hardClearRatio: 0.95
-      },
+      // NOTE (2026-01-31): contextPruning was rejected by clawdbot doctor v2026.1.24-3
+      // with "Invalid input" for mode field. The feature may not be available in all
+      // versions or may have been renamed/removed. Verify with current docs before using.
+      // contextPruning: {
+      //   mode: "adaptive",              // UNVERIFIED - rejected in testing
+      //   keepLastAssistants: 3,
+      //   softTrimRatio: 0.8,
+      //   hardClearRatio: 0.95
+      // },
 
-      // Compaction
+      // Compaction (VERIFIED working in v2026.1.24-3)
       compaction: {
-        mode: "default",                  // default|safeguard
-        reserveTokensFloor: 10000,
+        mode: "safeguard",                // default|safeguard
+        reserveTokensFloor: 20000,        // tokens reserved before compaction
         memoryFlush: {
           enabled: true,
-          softThresholdTokens: 1000
+          softThresholdTokens: 4000       // trigger memory flush at this threshold
         }
       },
 
@@ -700,6 +703,105 @@ Six files in workspace directory injected on session start:
 | `BOOTSTRAP.md` | One-time init (auto-deleted) |
 
 **Note:** Blank files skipped. Large files trimmed with marker.
+
+---
+
+## Known Gotchas & Troubleshooting (Learned 2026-01-31)
+
+### contextTokens is Cached Per-Session
+
+**Problem:** Changing `agents.defaults.contextTokens` in config doesn't update existing sessions. Sessions cache the context limit when created.
+
+**Symptoms:**
+- `clawdbot sessions list` shows old limit (e.g., `110k/128k`) even after config change
+- "Context overflow" errors persist after increasing contextTokens
+
+**Solution:** Delete the session to force a fresh start with new config:
+```bash
+# Find the session file
+ls ~/.clawdbot/agents/main/sessions/*.jsonl
+
+# Delete the problematic session transcript
+rm ~/.clawdbot/agents/main/sessions/<session-id>.jsonl
+
+# Remove from sessions.json (or use Python/jq to edit)
+```
+
+**Note:** There's no `clawdbot sessions clear <key>` command as of v2026.1.24-3.
+
+### Timeouts Trigger Cooldowns
+
+**Problem:** Clawdbot treats API timeouts as "possible rate limits" and puts the auth profile in cooldown.
+
+**What happens:**
+1. Request times out (exceeds `timeoutSeconds`)
+2. Profile marked as "timed out (possible rate limit)"
+3. Exponential backoff: 1m → 5m → 25m → 1h (capped)
+
+**This is by design** but can be surprising when the API was just slow (large context, etc.).
+
+**Mitigation:**
+- Increase `timeoutSeconds` for large-context models (e.g., 300-600 for 100k+ token requests)
+- Add multiple auth profiles so rotation continues during cooldown
+
+### Single-Provider Fallbacks Don't Help
+
+**Problem:** If all fallback models use the same provider with one auth profile, they ALL fail when that profile goes into cooldown.
+
+**Bad config:**
+```json
+{
+  "model": {
+    "primary": "google-gemini-cli/gemini-3-pro-preview",
+    "fallbacks": [
+      "google-gemini-cli/gemini-2.5-flash",  // same provider!
+      "google-gemini-cli/gemini-2.0-flash"   // same provider!
+    ]
+  }
+}
+```
+
+**Good config:**
+```json
+{
+  "model": {
+    "primary": "google-gemini-cli/gemini-3-pro-preview",
+    "fallbacks": [
+      "google-gemini-cli/gemini-2.5-flash",
+      "google-gemini-cli/gemini-2.0-flash",
+      "anthropic/claude-sonnet-4"  // different provider = true failover
+    ]
+  }
+}
+```
+
+### Adding Multiple Google Accounts
+
+You can add multiple Google accounts for the same provider to enable rotation during cooldowns:
+
+```bash
+clawdbot models auth login --provider google-gemini-cli
+```
+
+Run this multiple times, logging in with different Google accounts each time. Creates profiles like:
+```
+google-gemini-cli:account1@gmail.com
+google-gemini-cli:account2@gmail.com
+```
+
+When one goes into cooldown, Clawdbot automatically uses the other.
+
+### Model Context Limits vs contextTokens
+
+**Important:** `contextTokens` in config should match your model's actual context window:
+
+| Model | Actual Context | Recommended contextTokens |
+|-------|----------------|---------------------------|
+| gemini-3-pro-preview | 1024k | 500000-900000 |
+| gemini-2.5-flash | 1024k | 500000-900000 |
+| claude-sonnet-4 | 200k | 150000-180000 |
+
+Setting `contextTokens` too low (e.g., 128000 for a 1M model) artificially limits your context and triggers unnecessary compaction/overflow errors.
 
 ---
 
