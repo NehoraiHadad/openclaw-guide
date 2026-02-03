@@ -1,7 +1,7 @@
 ---
 name: OpenClaw Guide
 description: "PROACTIVE LEARNING SKILL - Use this skill AND update it during work. Trigger when user mentions: openclaw, clawdbot, moltbot, molt.bot, lobster bot, gateway, openclaw.json, clawdbot.json, moltbot.json, channel config, WhatsApp bot, Telegram bot, Discord bot, Slack bot, iMessage, Signal, exec tool, browser tool, sessions, sub-agents, multi-agent, cron, webhooks, agent routing, sandbox, skills, ClawdHub, heartbeat, bootstrap files, AGENTS.md, SOUL.md, memory files. Also trigger on: gateway restart, doctor command, channel login, session management, context overflow, cooldown, auth profiles, model fallbacks. This is a LEARNING SKILL: when you discover new OpenClaw behavior or fix issues, IMMEDIATELY update this skill file."
-version: 0.3.2
+version: 0.4.0
 ---
 
 # OpenClaw Complete Guide (formerly Clawdbot/Moltbot)
@@ -116,6 +116,43 @@ Primary config: `~/.openclaw/openclaw.json`
 
 Local dashboard: `http://127.0.0.1:18789/`
 
+**Remote access via Tailscale Serve:**
+```bash
+# Enable in config
+openclaw config set gateway.tailscale.mode serve
+openclaw gateway restart
+```
+
+Then access via: `https://<machine-name>.<tailnet>.ts.net/`
+
+See "Tailscale Integration" section below for full setup.
+
+### Real-Time Monitoring (Learned 2026-02-03)
+
+**Live logs (best for debugging):**
+```bash
+openclaw logs --follow
+```
+
+**What to look for in logs:**
+
+| Log Pattern | Meaning |
+|-------------|---------|
+| `embedded run start` | Agent started processing a message |
+| `embedded run agent end` | Model finished generating |
+| `embedded run done` | Full run completed |
+| `durationMs=X` | How long the run took |
+| `tool start/end` | Agent using a tool |
+| `session state: idle→processing` | Message being handled |
+
+**Other monitoring options:**
+- `openclaw tui` - Terminal UI
+- `openclaw dashboard` - Web interface
+- `openclaw status` - Channel health + recent sessions
+- `openclaw health` - Gateway health check
+
+**Diagnosing stuck requests:** If you see `embedded run start` but no `embedded run complete` for several minutes, the API is hanging. Use `openclaw gateway restart` to cancel.
+
 ## Tool Categories
 
 ### Core Execution Tools
@@ -144,6 +181,82 @@ Agent-controlled browser with two modes:
 - **Sub-agents:** Background agent runs for parallel tasks
 
 **Reference:** See `references/tools-sessions.md` for session management.
+
+## Session Lifecycle (Learned 2026-02-03)
+
+### When Sessions Are Created
+
+Sessions are created **on first message**. When you send a message to the bot on any channel, a session is automatically created if one doesn't exist for that conversation.
+
+### When Sessions Reset
+
+Sessions reset (start fresh) when:
+
+1. **Daily reset** - Default 4:00 AM local time
+2. **Idle timeout** - If `idleMinutes` is configured
+3. **Manual `/new`** - User forces a new session
+
+**Note:** Sessions don't "close" - they persist until reset. The reset is evaluated on the next inbound message, not in real-time.
+
+### The `/new` Command
+
+```bash
+/new              # Fresh session, old transcript preserved
+/new gemini-2.5-pro  # New session with specific model
+```
+
+**Important:** Old session files stay on disk - they're not deleted!
+
+### Session Storage
+
+```
+~/.openclaw/agents/<agentId>/sessions/
+├── sessions.json                    # Metadata index (maps keys to session IDs)
+├── <session-id-1>.jsonl             # Conversation transcript
+├── <session-id-2>.jsonl
+└── ...
+```
+
+**Session key format:** `agent:<agentId>:<channel>:<type>:<peer-id>`
+- Example: `agent:main:telegram:default:dm:141413702`
+
+### Viewing Sessions
+
+```bash
+# List all sessions with token usage
+openclaw sessions
+
+# Show only recent sessions (last 2 hours)
+openclaw sessions --active 120
+
+# JSON output for scripting
+openclaw sessions --json
+```
+
+### Accessing Old Transcripts
+
+Old transcripts remain on disk even after `/new`:
+
+```bash
+# View raw transcript
+cat ~/.openclaw/agents/main/sessions/<session-id>.jsonl | jq .
+
+# The agent can also use the session-logs skill or sessions_history tool
+```
+
+### Session Configuration
+
+```json5
+{
+  "session": {
+    "dmScope": "per-account-channel-peer",  // How DM sessions are scoped
+    "resetByType": {
+      "dm": { "idleMinutes": 60 },
+      "group": { "idleMinutes": 120 }
+    }
+  }
+}
+```
 
 ### Automation
 
@@ -636,6 +749,124 @@ openclaw gateway restart
     "google-gemini-cli:email@gmail.com": {
       "lastUsed": 1769922923662,
       "errorCount": 0  // Reset to 0, remove cooldownUntil/lastFailureAt/failureCounts
+    }
+  }
+}
+```
+
+## Tailscale Integration (Learned 2026-02-03)
+
+Enable remote access to the dashboard from any device on your Tailscale network.
+
+### Enable Tailscale Serve
+
+**Method 1: CLI**
+```bash
+openclaw config set gateway.tailscale.mode serve
+openclaw gateway restart
+```
+
+**Method 2: Edit config**
+```json5
+{
+  "gateway": {
+    "tailscale": {
+      "mode": "serve"  // "off", "serve", or "funnel"
+    },
+    "auth": {
+      "allowTailscale": true  // Enable Tailscale identity headers
+    }
+  }
+}
+```
+
+**Modes:**
+- `off` - No Tailscale (default)
+- `serve` - Tailnet-only access (recommended, more secure)
+- `funnel` - Public internet access (requires password auth)
+
+### Device Pairing (Learned 2026-02-03)
+
+When accessing the dashboard via Tailscale for the first time, you may see:
+```
+disconnected (1008): pairing required
+```
+
+**Fix:** Approve the pending device:
+```bash
+# List pending pairing requests
+openclaw devices list
+
+# Approve a request
+openclaw devices approve <request-id>
+```
+
+The request ID is shown in the "Pending" section of `openclaw devices list`.
+
+### Check Tailscale Status
+
+```bash
+# Verify Tailscale Serve is active
+tailscale serve status
+
+# Should show something like:
+# https://<machine>.tail1234.ts.net (tailnet only)
+# |-- / proxy http://127.0.0.1:18789
+```
+
+## Agent Management (Learned 2026-02-03)
+
+### Default Agent
+
+**The first agent in `agents.list` is the default.** It receives all messages that don't match specific routing rules.
+
+```json5
+{
+  "agents": {
+    "list": [
+      { "id": "main" },      // ← Default (first in list)
+      { "id": "docs-expert" },
+      { "id": "support" }
+    ]
+  }
+}
+```
+
+### Restoring a Deleted Agent
+
+If an agent was removed from config but its state directory still exists:
+
+**Check if state exists:**
+```bash
+ls ~/.openclaw/agents/
+# If you see the agent folder (e.g., "main"), state is preserved
+```
+
+**Restore by adding back to config:**
+```json5
+{
+  "agents": {
+    "list": [
+      { "id": "main" },  // Just add the ID - uses defaults
+      // ... other agents
+    ]
+  }
+}
+```
+
+Then restart: `openclaw gateway restart`
+
+The agent's sessions, history, and settings in `~/.openclaw/agents/<id>/` will be reconnected.
+
+### Agent-to-Agent Communication
+
+If agents need to communicate, add them to the allow list:
+```json5
+{
+  "tools": {
+    "agentToAgent": {
+      "enabled": true,
+      "allow": ["main", "docs-expert", "support"]
     }
   }
 }
