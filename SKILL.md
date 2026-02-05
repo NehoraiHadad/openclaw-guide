@@ -552,6 +552,150 @@ Heartbeats are periodic polls configured via `agents.defaults.heartbeat`.
 
 **Reference:** See `references/agent-architecture.md` for routing, `references/agent-behavior.md` for platform constraints.
 
+## WhatsApp Multi-Agent Group Routing (Learned 2026-02-05)
+
+Route different WhatsApp groups to different agents. Requires configuration in **3 places**.
+
+### Complete Example: Two Groups → Two Agents
+
+```json5
+{
+  // 1. CHANNEL CONFIG - Allow groups and set mention requirements
+  "channels": {
+    "whatsapp": {
+      "accounts": {
+        "agent": {  // or "personal" depending on which account
+          "groupAllowFrom": [
+            "GROUP_A_ID@g.us",
+            "GROUP_B_ID@g.us"
+          ],
+          "groupPolicy": "open",  // or "allowlist"
+          "groups": {
+            "GROUP_A_ID@g.us": { "requireMention": true },
+            "GROUP_B_ID@g.us": { "requireMention": true }
+          }
+        }
+      }
+    }
+  },
+
+  // 2. BINDINGS - Route groups to specific agents
+  "bindings": [
+    {
+      "agentId": "agent-a",
+      "match": {
+        "channel": "whatsapp",
+        "accountId": "agent",
+        "peer": { "kind": "group", "id": "GROUP_A_ID@g.us" }
+      }
+    },
+    {
+      "agentId": "agent-b",
+      "match": {
+        "channel": "whatsapp",
+        "accountId": "agent",
+        "peer": { "kind": "group", "id": "GROUP_B_ID@g.us" }
+      }
+    },
+    {
+      "agentId": "agent-a",  // Fallback for DMs on this account
+      "match": {
+        "channel": "whatsapp",
+        "accountId": "agent"
+      }
+    }
+  ],
+
+  // 3. AGENTS - Define agents with mention patterns
+  "agents": {
+    "list": [
+      {
+        "id": "agent-a",
+        "workspace": "/path/to/agent-a",
+        "groupChat": {
+          "mentionPatterns": ["@agent-a", "hey agent"]
+        }
+      },
+      {
+        "id": "agent-b",
+        "workspace": "/path/to/agent-b",
+        "groupChat": {
+          "mentionPatterns": ["@agent-b", "bot"]
+        }
+      }
+    ]
+  }
+}
+```
+
+### Key Configuration Points
+
+| Config Location | Purpose |
+|----------------|---------|
+| `channels.whatsapp.accounts.<account>.groupAllowFrom` | Which groups to listen to |
+| `channels.whatsapp.accounts.<account>.groups.<id>.requireMention` | Gate by mention (saves tokens!) |
+| `bindings[].match.peer` | Route specific group → specific agent |
+| `agents.list[].groupChat.mentionPatterns` | Keywords that trigger the agent |
+
+### Adding a New Group to an Existing Agent
+
+1. Add group ID to `groupAllowFrom`:
+   ```json
+   "groupAllowFrom": ["existing@g.us", "NEW_GROUP@g.us"]
+   ```
+
+2. Add mention settings:
+   ```json
+   "groups": {
+     "NEW_GROUP@g.us": { "requireMention": true }
+   }
+   ```
+
+3. Add binding:
+   ```json
+   {
+     "agentId": "my-agent",
+     "match": {
+       "channel": "whatsapp",
+       "accountId": "agent",
+       "peer": { "kind": "group", "id": "NEW_GROUP@g.us" }
+     }
+   }
+   ```
+
+4. Restart gateway: `pkill -f openclaw-gateway && openclaw gateway &`
+
+### Finding a Group ID
+
+Send a message in the group and check logs:
+```bash
+tail -f ~/clawd/logs/gateway.log | grep "inbound message"
+```
+The `from` field shows the group ID (format: `120363...@g.us`).
+
+### How Mention Gating Works
+
+When `requireMention: true`:
+- Messages **without** mention → blocked at gateway (no tokens used!)
+- Messages **with** mention → sent to agent
+
+The gateway checks `mentionPatterns` from the agent config. Logs show:
+```
+"wasMentioned": false  → blocked
+"wasMentioned": true   → processed
+```
+
+### Routing Priority
+
+Bindings are matched most-specific-first:
+1. Explicit `peer.id` match (group/DM ID)
+2. `peer.kind` match (group vs dm)
+3. `accountId` match
+4. `channel` match
+5. Default agent (first in `agents.list`)
+
+**Always put specific group bindings BEFORE generic account bindings.**
+
 ## Common Patterns
 
 ### Basic WhatsApp Setup
