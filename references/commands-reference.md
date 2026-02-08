@@ -2,7 +2,7 @@
 
 ## Command Overview
 
-Moltbot provides 50+ CLI commands for managing the gateway, channels, sessions, and tools.
+OpenClaw provides 50+ CLI commands for managing the gateway, channels, sessions, and tools.
 
 ## Core Commands
 
@@ -10,32 +10,32 @@ Moltbot provides 50+ CLI commands for managing the gateway, channels, sessions, 
 
 | Command | Description |
 |---------|-------------|
-| `clawdbot gateway start` | Start the gateway daemon |
-| `clawdbot gateway stop` | Stop the gateway daemon |
-| `clawdbot gateway restart` | Restart the gateway (v2026.1.24-3 verified) |
-| `clawdbot status` | Check gateway status |
-| `clawdbot health` | Health check endpoint |
+| `openclaw gateway start` | Start the gateway daemon |
+| `openclaw gateway stop` | Stop the gateway daemon |
+| `openclaw gateway restart` | Restart the gateway (v2026.1.24-3 verified) |
+| `openclaw status` | Check gateway status |
+| `openclaw health` | Health check endpoint |
 
-**Note (2026-01-31):** Top-level `clawdbot restart` does not exist in v2026.1.24-3. Use `clawdbot gateway restart` instead.
+**Note (2026-01-31):** Top-level `openclaw restart` does not exist in v2026.1.24-3. Use `openclaw gateway restart` instead.
 
 ### Setup & Configuration
 
 | Command | Description |
 |---------|-------------|
-| `moltbot onboard` | Run setup wizard |
-| `moltbot setup` | Initialize configuration |
-| `moltbot configure` | Edit configuration |
-| `moltbot update` | Update to latest version |
-| `moltbot uninstall` | Remove Moltbot |
+| `openclaw onboard` | Run setup wizard |
+| `openclaw setup` | Initialize configuration |
+| `openclaw configure` | Edit configuration |
+| `openclaw update` | Update to latest version |
+| `openclaw uninstall` | Remove OpenClaw |
 
 ### Diagnostics
 
 | Command | Description |
 |---------|-------------|
-| `moltbot doctor` | Run diagnostics |
-| `moltbot doctor --repair` | Apply fixes, backup config |
-| `moltbot doctor --deep` | Comprehensive checks |
-| `moltbot logs` | View gateway logs |
+| `openclaw doctor` | Run diagnostics |
+| `openclaw doctor --repair` | Apply fixes, backup config |
+| `openclaw doctor --deep` | Comprehensive checks |
+| `openclaw logs` | View gateway logs |
 
 ## Channel Commands
 
@@ -43,29 +43,29 @@ Moltbot provides 50+ CLI commands for managing the gateway, channels, sessions, 
 
 ```bash
 # Login to channel
-moltbot channels login
-moltbot channels login --channel telegram
-moltbot channels login --account secondary
+openclaw channels login
+openclaw channels login --channel telegram
+openclaw channels login --account secondary
 
 # List channels
-moltbot channels
+openclaw channels
 
 # Channel status
-moltbot channels status
+openclaw channels status
 ```
 
 ### Pairing
 
 ```bash
 # List pending approvals
-moltbot pairing
+openclaw pairing
 
 # Approve sender
-moltbot pairing approve whatsapp <code>
-moltbot pairing approve telegram <code>
+openclaw pairing approve whatsapp <code>
+openclaw pairing approve telegram <code>
 
 # Deny sender
-moltbot pairing deny <code>
+openclaw pairing deny <code>
 ```
 
 ## Session Commands
@@ -74,13 +74,13 @@ moltbot pairing deny <code>
 
 ```bash
 # Basic listing
-moltbot sessions
+openclaw sessions
 
 # Active sessions (within N minutes)
-moltbot sessions --active 120
+openclaw sessions --active 120
 
 # JSON output
-moltbot sessions --json
+openclaw sessions --json
 ```
 
 ### In-Chat Commands
@@ -100,14 +100,14 @@ Send messages, polls, and perform channel actions via CLI.
 
 ```bash
 # Send text message
-clawdbot message send --channel telegram --target @username --message "Hello"
-clawdbot message send --channel whatsapp --target +15555550123 --message "Hi"
+openclaw message send --channel telegram --target @username --message "Hello"
+openclaw message send --channel whatsapp --target +15555550123 --message "Hi"
 
 # Send with media
-clawdbot message send --target +15555550123 --message "Photo" --media photo.jpg
+openclaw message send --target +15555550123 --message "Photo" --media photo.jpg
 
 # Telegram with inline buttons
-clawdbot message send --channel telegram --target @username \
+openclaw message send --channel telegram --target @username \
   --message "Choose:" \
   --buttons '[[{"text":"Yes","callback_data":"yes"},{"text":"No","callback_data":"no"}]]'
 ```
@@ -116,12 +116,12 @@ clawdbot message send --channel telegram --target @username \
 
 ```bash
 # Single-select poll
-clawdbot message poll --channel telegram --target @username \
+openclaw message poll --channel telegram --target @username \
   --poll-question "Favorite color?" \
   --poll-option "Red" --poll-option "Blue" --poll-option "Green"
 
 # Multi-select poll (users can pick multiple)
-clawdbot message poll --channel telegram --target @username \
+openclaw message poll --channel telegram --target @username \
   --poll-question "Which apply?" \
   --poll-multi \
   --poll-option "Option A" --poll-option "Option B" --poll-option "Option C"
@@ -133,30 +133,30 @@ Poll options: 2-12 choices per poll, `--poll-multi` enables multiple selections.
 
 ```bash
 # React to message
-clawdbot message react --channel discord --target 123 --message-id 456 --emoji "✅"
+openclaw message react --channel discord --target 123 --message-id 456 --emoji "✅"
 
 # Read recent messages
-clawdbot message read --channel telegram --target @username --limit 10
+openclaw message read --channel telegram --target @username --limit 10
 
 # Edit/delete
-clawdbot message edit --channel telegram --target @username --message-id 123 --message "Updated"
-clawdbot message delete --channel telegram --target @username --message-id 123
+openclaw message edit --channel telegram --target @username --message-id 123 --message "Updated"
+openclaw message delete --channel telegram --target @username --message-id 123
 ```
 
 ## Cron Commands
 
 ```bash
 # List cron jobs
-moltbot cron
+openclaw cron
 
 # Show job details
-moltbot cron show <job-id>
+openclaw cron show <job-id>
 
 # Edit job delivery
-moltbot cron edit <job-id> --deliver --channel telegram --to "123456789"
+openclaw cron edit <job-id> --deliver --channel telegram --to "123456789"
 
 # Disable delivery
-moltbot cron edit <job-id> --no-deliver
+openclaw cron edit <job-id> --no-deliver
 ```
 
 ## Browser Commands
@@ -165,95 +165,95 @@ moltbot cron edit <job-id> --no-deliver
 
 ```bash
 # Open URL
-moltbot browser open https://example.com
+openclaw browser open https://example.com
 
 # Take snapshot
-moltbot browser snapshot
-moltbot browser snapshot --interactive
-moltbot browser snapshot --mode role
+openclaw browser snapshot
+openclaw browser snapshot --interactive
+openclaw browser snapshot --mode role
 
 # Screenshot
-moltbot browser screenshot
-moltbot browser screenshot --full-page
+openclaw browser screenshot
+openclaw browser screenshot --full-page
 ```
 
 ### Interaction
 
 ```bash
 # Click element
-moltbot browser click e12
-moltbot browser click e12 --double
+openclaw browser click e12
+openclaw browser click e12 --double
 
 # Type text
-moltbot browser type e23 "text"
-moltbot browser type e23 "query" --submit
+openclaw browser type e23 "text"
+openclaw browser type e23 "query" --submit
 
 # Drag and drop
-moltbot browser drag e10 e11
+openclaw browser drag e10 e11
 ```
 
 ### State
 
 ```bash
 # Cookies
-moltbot browser cookies set name value --url "https://example.com"
-moltbot browser cookies get --url "https://example.com"
+openclaw browser cookies set name value --url "https://example.com"
+openclaw browser cookies get --url "https://example.com"
 
 # Geolocation
-moltbot browser set geo 37.7749 -122.4194
+openclaw browser set geo 37.7749 -122.4194
 
 # Timezone
-moltbot browser set timezone America/New_York
+openclaw browser set timezone America/New_York
 ```
 
 ## Agent Commands
 
 ```bash
 # List agents
-moltbot agents
+openclaw agents
 
 # Agent info
-moltbot agent <agent-id>
+openclaw agent <agent-id>
 
 # Switch agent
-moltbot agent use <agent-id>
+openclaw agent use <agent-id>
 ```
 
 ## Memory Commands
 
 ```bash
 # View memory
-moltbot memory
+openclaw memory
 
 # Search memory
-moltbot memory search "query"
+openclaw memory search "query"
 ```
 
 ## Node Commands
 
 ```bash
 # List nodes
-moltbot nodes
+openclaw nodes
 
 # Node status
-moltbot nodes status
+openclaw nodes status
 
 # Pair node
-moltbot nodes pair
+openclaw nodes pair
 ```
 
 ## Skills Commands
 
 ```bash
 # List skills
-moltbot skills
+openclaw skills
 
 # Skill info
-moltbot skills show <skill-name>
+openclaw skills show <skill-name>
 
 # Enable/disable skill
-moltbot skills enable <skill-name>
-moltbot skills disable <skill-name>
+openclaw skills enable <skill-name>
+openclaw skills disable <skill-name>
 ```
 
 ## ClawdHub Commands
@@ -321,13 +321,13 @@ clawdhub search "keyword"
 
 ```bash
 # Enable debug mode
-moltbot --debug
+openclaw --debug
 
 # Verbose logging
-moltbot --verbose
+openclaw --verbose
 
 # TUI interface
-moltbot tui
+openclaw tui
 ```
 
 ## Useful Command Patterns
@@ -335,26 +335,26 @@ moltbot tui
 ### Quick Health Check
 
 ```bash
-moltbot status && moltbot health
+openclaw status && openclaw health
 ```
 
 ### Reset Channel Auth
 
 ```bash
-moltbot channels login --channel whatsapp --force
+openclaw channels login --channel whatsapp --force
 ```
 
 ### Export Session Data
 
 ```bash
-moltbot sessions --json > sessions.json
+openclaw sessions --json > sessions.json
 ```
 
 ### Debug Gateway Issues
 
 ```bash
-moltbot doctor --deep
-moltbot logs --tail 100
+openclaw doctor --deep
+openclaw logs --tail 100
 ```
 
 ---
@@ -364,8 +364,8 @@ moltbot logs --tail 100
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/ to check for updates.
 
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/commands-reference.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/commands-reference.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

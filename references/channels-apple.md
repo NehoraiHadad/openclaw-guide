@@ -7,7 +7,7 @@ iMessage integration operates as an external CLI tool that spawns `imsg rpc` usi
 ## Requirements
 
 - macOS with signed-in Messages app
-- Full Disk Access permissions for Moltbot and `imsg`
+- Full Disk Access permissions for OpenClaw and `imsg`
 - Automation permission for sending messages
 
 ## Setup
@@ -35,7 +35,7 @@ brew install steipete/tap/imsg
 ### Start Gateway
 
 ```bash
-moltbot start
+openclaw start
 ```
 
 Approve system prompts when they appear.
@@ -99,7 +99,7 @@ Connect Linux gateway to Mac via Tailscale:
 ### Pairing Approval
 
 ```bash
-moltbot pairing approve imessage <code>
+openclaw pairing approve imessage <code>
 ```
 
 Codes expire after 1 hour.
@@ -222,7 +222,7 @@ imsg chats --limit 20
 ### Permissions Issues
 
 Check System Preferences > Security & Privacy:
-- Full Disk Access: Terminal, Moltbot, imsg
+- Full Disk Access: Terminal, OpenClaw, imsg
 - Automation: Allow controlling Messages
 
 ### Not Receiving Messages
@@ -244,8 +244,8 @@ Check System Preferences > Security & Privacy:
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/ to check for updates.
 
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/channels-apple.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/channels-apple.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

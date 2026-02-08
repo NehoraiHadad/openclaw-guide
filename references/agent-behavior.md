@@ -1,19 +1,19 @@
 # Agent Behavior & Bootstrap System
 
-This reference documents how Clawdbot's bootstrap and behavior system works — the platform mechanics, not prescriptive rules.
+This reference documents how OpenClaw's bootstrap and behavior system works — the platform mechanics, not prescriptive rules.
 
-**Source:** Official docs at `~/.nvm/.../clawdbot/docs/` and templates at `.../docs/reference/templates/`
+**Source:** Official docs at `~/.nvm/.../openclaw/docs/` and templates at `.../docs/reference/templates/`
 
 ## Bootstrap File System
 
 ### How It Works
 
-On session start, Clawdbot injects workspace files into the context. This is the agent's "memory" and "personality" system.
+On session start, OpenClaw injects workspace files into the context. This is the agent's "memory" and "personality" system.
 
 **Injection order:** AGENTS.md → SOUL.md → USER.md → IDENTITY.md → TOOLS.md → (memory files)
 
 **Key behaviors:**
-- Missing files: Clawdbot injects a "missing file" marker and continues
+- Missing files: OpenClaw injects a "missing file" marker and continues
 - Large files: Truncated at `agents.defaults.bootstrapMaxChars` (default: 20000)
 - Skip bootstrap: Set `agents.defaults.skipBootstrap: true` to manage files yourself
 
@@ -34,9 +34,9 @@ On session start, Clawdbot injects workspace files into the context. This is the
 
 ### Default Templates
 
-Clawdbot ships with default templates at:
+OpenClaw ships with default templates at:
 ```
-~/.nvm/.../clawdbot/docs/reference/templates/
+~/.nvm/.../openclaw/docs/reference/templates/
 ├── AGENTS.md       # Full behavioral framework
 ├── AGENTS.dev.md   # Developer-focused variant
 ├── SOUL.md         # Default persona template
@@ -56,7 +56,7 @@ cp docs/reference/templates/SOUL.md ~/clawd/SOUL.md
 # etc.
 ```
 
-Or run `clawdbot setup` to seed missing files.
+Or run `openclaw setup` to seed missing files.
 
 ---
 
@@ -81,7 +81,7 @@ This prevents personal context from leaking to shared contexts.
 
 ### Automatic Memory Flush
 
-Before context compaction, Clawdbot triggers a silent turn to write durable memories.
+Before context compaction, OpenClaw triggers a silent turn to write durable memories.
 
 **Config:**
 ```json5
@@ -108,12 +108,12 @@ Before context compaction, Clawdbot triggers a silent turn to write durable memo
 
 ### Vector Memory Search
 
-Clawdbot can build a semantic index over memory files.
+OpenClaw can build a semantic index over memory files.
 
 **Default behavior:**
 - Indexes `MEMORY.md` + `memory/**/*.md`
 - Auto-selects provider: local → openai → gemini
-- Stores in `~/.clawdbot/memory/<agentId>.sqlite`
+- Stores in `~/.openclaw/memory/<agentId>.sqlite`
 
 **Tools provided:**
 - `memory_search` — Semantic search across memory
@@ -260,7 +260,7 @@ git commit -m "Add agent workspace"
 
 **Do not commit:**
 - API keys, OAuth tokens, passwords
-- Anything under `~/.clawdbot/`
+- Anything under `~/.openclaw/`
 - Sensitive chat dumps
 
 ---
@@ -320,6 +320,6 @@ git commit -m "Add agent workspace"
 This reference documents **how the system works**, not **what to put in it**.
 
 **Source paths:**
-- Bundled docs: `~/.nvm/.../clawdbot/docs/`
-- Templates: `~/.nvm/.../clawdbot/docs/reference/templates/`
+- Bundled docs: `~/.nvm/.../openclaw/docs/`
+- Templates: `~/.nvm/.../openclaw/docs/reference/templates/`
 - Online: https://docs.openclaw.ai/ (redirects from docs.molt.bot)

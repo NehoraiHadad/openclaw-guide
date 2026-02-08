@@ -6,14 +6,14 @@ WhatsApp integration uses Baileys library for web sessions.
 
 ### Setup
 
-1. Configure in `~/.clawdbot/moltbot.json`
-2. Run `moltbot channels login`
+1. Configure in `~/.openclaw/openclaw.json`
+2. Run `openclaw channels login`
 3. Scan QR code with WhatsApp → Linked Devices
 
 ### Phone Number Options
 
 **Dedicated Number (Recommended):**
-- Separate phone/eSIM for Moltbot only
+- Separate phone/eSIM for OpenClaw only
 - Ideal: spare Android + eSIM on Wi-Fi/power
 - WhatsApp Business can coexist on same device
 - Cleanest routing, no self-chat quirks
@@ -64,7 +64,7 @@ WhatsApp integration uses Baileys library for web sessions.
 
 | Policy | Behavior |
 |--------|----------|
-| `pairing` | Unknown senders get code; approve via `moltbot pairing approve whatsapp <code>` |
+| `pairing` | Unknown senders get code; approve via `openclaw pairing approve whatsapp <code>` |
 | `allowlist` | Only numbers in `allowFrom` |
 | `open` | Requires `allowFrom: ["*"]` |
 | `disabled` | No direct messaging |
@@ -119,7 +119,7 @@ Control what triggers the agent in groups via `agents.list[].groupChat.mentionPa
       id: "main",
       groupChat: {
         mentionPatterns: [
-          "@?clawdbot",      // matches @clawdbot or clawdbot
+          "@?openclaw",      // matches @openclaw or openclaw
           "\\+?15555550123"  // matches phone number
         ]
       }
@@ -156,17 +156,17 @@ Control what triggers the agent in groups via `agents.list[].groupChat.mentionPa
 ### Multi-Account
 
 ```bash
-moltbot channels login --account <id>
+openclaw channels login --account <id>
 ```
 
-Credentials: `~/.clawdbot/credentials/whatsapp/<accountId>/creds.json`
+Credentials: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
 
 ### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Not linked | Run `moltbot channels login`, scan QR |
-| Disconnected | Run `moltbot doctor` or relink |
+| Not linked | Run `openclaw channels login`, scan QR |
+| Disconnected | Run `openclaw doctor` or relink |
 | Bun issues | Use Node.js instead |
 
 ---
@@ -177,7 +177,7 @@ Credentials: `~/.clawdbot/credentials/whatsapp/<accountId>/creds.json`
 
 1. Create bot via `@BotFather` → `/newbot`
 2. Copy bot token
-3. Configure in moltbot.json or env `TELEGRAM_BOT_TOKEN`
+3. Configure in openclaw.json or env `TELEGRAM_BOT_TOKEN`
 
 ### Complete Configuration
 
@@ -262,7 +262,7 @@ Credentials: `~/.clawdbot/credentials/whatsapp/<accountId>/creds.json`
 
 - Static stickers (WEBP) process through vision
 - Animated (TGS) and video (WEBM) skip processing
-- Cache at `~/.clawdbot/telegram/sticker-cache.json`
+- Cache at `~/.openclaw/telegram/sticker-cache.json`
 - Enable sending: `actions.sticker: true`
 
 ### Action Gating (Telegram-specific)
@@ -283,12 +283,12 @@ Telegram supports disabling specific actions:
 
 ### Polls (NOT SUPPORTED)
 
-**IMPORTANT:** Telegram polls are NOT supported via moltbot CLI. The `clawdbot message poll` command only works for Discord.
+**IMPORTANT:** Telegram polls are NOT supported via openclaw CLI. The `openclaw message poll` command only works for Discord.
 
 Error when attempting: `Action poll is not supported for provider telegram`
 
 **Workarounds:**
-1. **Numbered lists** (recommended) - Send items as numbered list, user replies with numbers. Agent can do this directly via `clawdbot message send`.
+1. **Numbered lists** (recommended) - Send items as numbered list, user replies with numbers. Agent can do this directly via `openclaw message send`.
 2. **Inline buttons** - Use buttons array (see above)
 3. **Direct Telegram API** - Call `sendPoll` endpoint via `curl`
 
@@ -503,7 +503,7 @@ Requires Bot API 9.3+, private chats with topics enabled.
 
 1. Get separate Signal number for bot
 2. Install `signal-cli` (requires Java)
-3. Link device: `signal-cli link -n "Moltbot"`
+3. Link device: `signal-cli link -n "OpenClaw"`
 
 ### Configuration
 
@@ -565,8 +565,8 @@ Requires Bot API 9.3+, private chats with topics enabled.
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/channels/<channel> to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/channels-messaging.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/channels-messaging.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

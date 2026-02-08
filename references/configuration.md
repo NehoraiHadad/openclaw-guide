@@ -2,32 +2,32 @@
 
 ## Overview
 
-Primary configuration: `~/.clawdbot/moltbot.json`
+Primary configuration: `~/.openclaw/openclaw.json`
 
 Format: **JSON5** (supports comments and trailing commas)
 
-**Important:** Moltbot refuses startup when configs contain unknown keys, malformed values, or invalid types. This prevents silent failures.
+**Important:** OpenClaw refuses startup when configs contain unknown keys, malformed values, or invalid types. This prevents silent failures.
 
 ## Validation & Safe Practices
 
 ### Before Making Changes
 
 ```bash
-moltbot doctor          # Check for issues
-moltbot doctor --fix    # Auto-repair and backup config
-moltbot status          # Verify credentials loaded
-moltbot models status   # Confirm API keys present
+openclaw doctor          # Check for issues
+openclaw doctor --fix    # Auto-repair and backup config
+openclaw status          # Verify credentials loaded
+openclaw models status   # Confirm API keys present
 ```
 
 ### Common Mistakes to Avoid
 
 | Mistake | Solution |
 |---------|----------|
-| Missing `gateway.mode` | Set `moltbot config set gateway.mode local` |
+| Missing `gateway.mode` | Set `openclaw config set gateway.mode local` |
 | Per-agent auth issues | Run onboarding per agent or copy `auth-profiles.json` |
 | Non-loopback without auth | Set `gateway.auth.token` and `gateway.auth.mode` |
 | Deprecated keys | Use `gateway.auth.token` not `gateway.token` |
-| Unsupported models | Check `moltbot models list` |
+| Unsupported models | Check `openclaw models list` |
 
 ### Testing Changes
 
@@ -117,8 +117,8 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
         workspaceAccess: "rw",            // none|ro|rw
         workspaceRoot: "~/sandboxed",
         docker: {
-          image: "moltbot/sandbox:latest",
-          containerPrefix: "moltbot-",
+          image: "openclaw/sandbox:latest",
+          containerPrefix: "openclaw-",
           workdir: "/workspace",
           readOnlyRoot: true,
           network: "none",
@@ -134,7 +134,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 
       // Context
       contextTokens: 200000,
-      // NOTE (2026-01-31): contextPruning was rejected by clawdbot doctor v2026.1.24-3
+      // NOTE (2026-01-31): contextPruning was rejected by openclaw doctor v2026.1.24-3
       // with "Invalid input" for mode field. The feature may not be available in all
       // versions or may have been renamed/removed. Verify with current docs before using.
       // contextPruning: {
@@ -195,7 +195,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
         default: true,
         name: "Main Agent",
         workspace: "~/main-workspace",    // Override defaults
-        agentDir: "~/.clawdbot/agents/main",
+        agentDir: "~/.openclaw/agents/main",
         model: "anthropic/claude-opus-4-5",
 
         identity: {
@@ -255,7 +255,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 
     resetTriggers: ["/new", "/reset"],
     heartbeatIdleMinutes: 60,
-    store: "~/.clawdbot/sessions",
+    store: "~/.openclaw/sessions",
 
     agentToAgent: { maxPingPongTurns: 5 },
 
@@ -431,7 +431,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 
       accounts: {
         "work": {
-          authDir: "~/.clawdbot/credentials/whatsapp/work",
+          authDir: "~/.openclaw/credentials/whatsapp/work",
           sendReadReceipts: false
         }
       }
@@ -655,7 +655,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 {
   cron: {
     enabled: true,
-    store: "~/.clawdbot/cron/jobs.json",
+    store: "~/.openclaw/cron/jobs.json",
     maxConcurrentRuns: 1
   }
 }
@@ -669,7 +669,7 @@ Always test with ad-hoc gateway runs using `--verbose` before committing to serv
 {
   logging: {
     level: "info",                        // debug|info|warn|error
-    file: "~/.clawdbot/logs/moltbot.log",
+    file: "~/.openclaw/logs/openclaw.log",
     consoleLevel: "info",
     consoleStyle: "pretty"                // pretty|json
   }
@@ -713,25 +713,25 @@ Six files in workspace directory injected on session start:
 **Problem:** Changing `agents.defaults.contextTokens` in config doesn't update existing sessions. Sessions cache the context limit when created.
 
 **Symptoms:**
-- `clawdbot sessions list` shows old limit (e.g., `110k/128k`) even after config change
+- `openclaw sessions list` shows old limit (e.g., `110k/128k`) even after config change
 - "Context overflow" errors persist after increasing contextTokens
 
 **Solution:** Delete the session to force a fresh start with new config:
 ```bash
 # Find the session file
-ls ~/.clawdbot/agents/main/sessions/*.jsonl
+ls ~/.openclaw/agents/main/sessions/*.jsonl
 
 # Delete the problematic session transcript
-rm ~/.clawdbot/agents/main/sessions/<session-id>.jsonl
+rm ~/.openclaw/agents/main/sessions/<session-id>.jsonl
 
 # Remove from sessions.json (or use Python/jq to edit)
 ```
 
-**Note:** There's no `clawdbot sessions clear <key>` command as of v2026.1.24-3.
+**Note:** There's no `openclaw sessions clear <key>` command as of v2026.1.24-3.
 
 ### Timeouts Trigger Cooldowns
 
-**Problem:** Clawdbot treats API timeouts as "possible rate limits" and puts the auth profile in cooldown.
+**Problem:** OpenClaw treats API timeouts as "possible rate limits" and puts the auth profile in cooldown.
 
 **What happens:**
 1. Request times out (exceeds `timeoutSeconds`)
@@ -780,7 +780,7 @@ rm ~/.clawdbot/agents/main/sessions/<session-id>.jsonl
 You can add multiple Google accounts for the same provider to enable rotation during cooldowns:
 
 ```bash
-clawdbot models auth login --provider google-gemini-cli
+openclaw models auth login --provider google-gemini-cli
 ```
 
 Run this multiple times, logging in with different Google accounts each time. Creates profiles like:
@@ -789,7 +789,7 @@ google-gemini-cli:account1@gmail.com
 google-gemini-cli:account2@gmail.com
 ```
 
-When one goes into cooldown, Clawdbot automatically uses the other.
+When one goes into cooldown, OpenClaw automatically uses the other.
 
 ### Model Context Limits vs contextTokens
 
@@ -809,8 +809,8 @@ Setting `contextTokens` too low (e.g., 128000 for a 1M model) artificially limit
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/gateway/configuration to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/configuration.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/configuration.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

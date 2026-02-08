@@ -2,7 +2,7 @@
 
 ## Overview
 
-Moltbot provides a separate, agent-only browser through a managed Chrome/Brave/Edge/Chromium profile isolated from personal browsing.
+OpenClaw provides a separate, agent-only browser through a managed Chrome/Brave/Edge/Chromium profile isolated from personal browsing.
 
 ## Browser Profiles
 
@@ -32,7 +32,7 @@ Three profile types supported:
 
 ### AI Snapshot (Default)
 
-Format: `moltbot browser snapshot`
+Format: `openclaw browser snapshot`
 
 - Produces text representation with numeric identifiers like `[ref=12]`
 - Actions reference these numbers: `click 12`, `type 23 "text"`
@@ -216,7 +216,7 @@ storage local|session clear          # Clear all
 ## Chrome Extension Setup
 
 ```bash
-moltbot browser extension install
+openclaw browser extension install
 ```
 
 1. Navigate to `chrome://extensions`
@@ -277,15 +277,15 @@ moltbot browser extension install
 ## CLI Quick Reference
 
 ```bash
-moltbot browser status
-moltbot browser start / stop
-moltbot browser tabs
-moltbot browser tab new / select <n> / close <id>
-moltbot browser open <url> / navigate <url>
-moltbot browser snapshot / screenshot
-moltbot browser click <ref> / type <ref> "text"
-moltbot browser profiles
-moltbot browser create-profile --name <name> --color "<hex>"
+openclaw browser status
+openclaw browser start / stop
+openclaw browser tabs
+openclaw browser tab new / select <n> / close <id>
+openclaw browser open <url> / navigate <url>
+openclaw browser snapshot / screenshot
+openclaw browser click <ref> / type <ref> "text"
+openclaw browser profiles
+openclaw browser create-profile --name <name> --color "<hex>"
 ```
 
 All commands accept `--browser-profile <name>` and `--json`.
@@ -298,9 +298,9 @@ All commands accept `--browser-profile <name>` and `--json`.
 | "Playwright not available" | Install full `playwright` package |
 
 **Debug workflow:**
-1. `moltbot browser snapshot --interactive`
+1. `openclaw browser snapshot --interactive`
 2. Use role refs (`e12`) in click/type
-3. If fails: `moltbot browser highlight <ref>`
+3. If fails: `openclaw browser highlight <ref>`
 4. Check errors: `--clear` to reset logs
 5. Record trace: `trace start` → reproduce → `trace stop`
 
@@ -316,8 +316,8 @@ When session is sandboxed, browser defaults to `target="sandbox"`. For Chrome ex
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/tools/browser to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/tools-browser.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/tools-browser.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

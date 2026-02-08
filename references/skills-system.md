@@ -2,7 +2,7 @@
 
 ## Overview
 
-Moltbot uses AgentSkills-compatible skill folders to extend agent capabilities. Each skill is a directory containing a `SKILL.md` file with YAML frontmatter and instructions.
+OpenClaw uses AgentSkills-compatible skill folders to extend agent capabilities. Each skill is a directory containing a `SKILL.md` file with YAML frontmatter and instructions.
 
 ## SKILL.md Format
 
@@ -33,12 +33,12 @@ description: Brief functionality description
 ### Metadata for Gating
 
 ```yaml
-metadata: {"moltbot":{"requires":{"bins":["jq"],"env":["API_KEY"],"config":["browser.enabled"]},"os":["darwin"]}}
+metadata: {"openclaw":{"requires":{"bins":["jq"],"env":["API_KEY"],"config":["browser.enabled"]},"os":["darwin"]}}
 ```
 
 ## Gating & Load-Time Filtering
 
-Skills filter via `metadata.moltbot` JSON object:
+Skills filter via `metadata.openclaw` JSON object:
 
 ### Availability Controls
 
@@ -54,7 +54,7 @@ Skills filter via `metadata.moltbot` JSON object:
 | `requires.bins` | All listed binaries must exist on PATH |
 | `requires.anyBins` | At least one binary must exist |
 | `requires.env` | Environment variables (checked in config or process) |
-| `requires.config` | Paths in moltbot.json that must be truthy |
+| `requires.config` | Paths in openclaw.json that must be truthy |
 
 ### Additional Metadata
 
@@ -68,7 +68,7 @@ Skills filter via `metadata.moltbot` JSON object:
 Three locations with hierarchical precedence (highest to lowest):
 
 1. **Workspace skills** (`<workspace>/skills`)
-2. **Managed/local skills** (`~/.clawdbot/skills`)
+2. **Managed/local skills** (`~/.openclaw/skills`)
 3. **Bundled skills** (shipped with install)
 
 **Additional layers:**
@@ -97,7 +97,7 @@ Skills can include installer specs for automated setup.
 ### Installer Metadata
 
 ```yaml
-metadata: {"moltbot":{"installers":[{"id":"brew-jq","kind":"brew","bins":["jq"],"label":"jq via Homebrew"}]}}
+metadata: {"openclaw":{"installers":[{"id":"brew-jq","kind":"brew","bins":["jq"],"label":"jq via Homebrew"}]}}
 ```
 
 **Download installer options:** `url`, `archive` (tar.gz/tar.bz2/zip), `stripComponents`, `targetDir`
@@ -193,7 +193,7 @@ Default: installs to current directory's `./skills`
 
 ## Plugin Skills
 
-Plugins can ship skills by listing directories in `moltbot.plugin.json`:
+Plugins can ship skills by listing directories in `openclaw.plugin.json`:
 
 ```json5
 {
@@ -206,10 +206,10 @@ Plugin skills participate in normal precedence and can be gated via config requi
 ## CLI Commands
 
 ```bash
-moltbot skills                     # List all skills
-moltbot skills show <skill-name>   # Show details
-moltbot skills enable <skill-name>
-moltbot skills disable <skill-name>
+openclaw skills                     # List all skills
+openclaw skills show <skill-name>   # Show details
+openclaw skills enable <skill-name>
+openclaw skills disable <skill-name>
 ```
 
 ## Security Considerations
@@ -251,7 +251,7 @@ Instructions for using this skill.
 ---
 name: browser-skill
 description: Browser automation helpers
-metadata: {"moltbot":{"requires":{"bins":["chromium"],"config":["browser.enabled"]}}}
+metadata: {"openclaw":{"requires":{"bins":["chromium"],"config":["browser.enabled"]}}}
 ---
 
 # Browser Skill
@@ -335,8 +335,8 @@ Write the number→group mapping for later processing.
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/tools/skills to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/skills-system.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/skills-system.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

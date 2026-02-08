@@ -7,9 +7,9 @@ Cron is the Gateway's built-in scheduler that persists jobs, wakes agents at sch
 ### Overview
 
 - Runs inside Gateway (not the model)
-- Stores jobs at `~/.clawdbot/cron/`
+- Stores jobs at `~/.openclaw/cron/`
 - Jobs use stable `jobId` identifiers
-- Run history at `~/.clawdbot/cron/runs/<jobId>.jsonl`
+- Run history at `~/.openclaw/cron/runs/<jobId>.jsonl`
 
 ### Schedule Types
 
@@ -92,7 +92,7 @@ Resolution priority: Job payload → Hook defaults → Agent config default
 
 **Add one-shot reminder (UTC):**
 ```bash
-moltbot cron add --name "Send reminder" \
+openclaw cron add --name "Send reminder" \
   --at "2026-01-12T18:00:00Z" \
   --session main \
   --system-event "Reminder text" \
@@ -102,7 +102,7 @@ moltbot cron add --name "Send reminder" \
 
 **Add relative reminder (20 minutes):**
 ```bash
-moltbot cron add --name "Calendar check" \
+openclaw cron add --name "Calendar check" \
   --at "20m" \
   --session main \
   --system-event "Check calendar." \
@@ -111,7 +111,7 @@ moltbot cron add --name "Calendar check" \
 
 **Recurring isolated job with WhatsApp delivery:**
 ```bash
-moltbot cron add --name "Morning status" \
+openclaw cron add --name "Morning status" \
   --cron "0 7 * * *" \
   --tz "America/Los_Angeles" \
   --session isolated \
@@ -123,7 +123,7 @@ moltbot cron add --name "Morning status" \
 
 **With model & thinking overrides:**
 ```bash
-moltbot cron add --name "Deep analysis" \
+openclaw cron add --name "Deep analysis" \
   --cron "0 6 * * 1" \
   --tz "America/Los_Angeles" \
   --session isolated \
@@ -137,7 +137,7 @@ moltbot cron add --name "Deep analysis" \
 
 **Agent-specific jobs:**
 ```bash
-moltbot cron add --name "Ops sweep" \
+openclaw cron add --name "Ops sweep" \
   --cron "0 6 * * *" \
   --session isolated \
   --message "Check ops queue" \
@@ -146,12 +146,12 @@ moltbot cron add --name "Ops sweep" \
 
 **Management commands:**
 ```bash
-moltbot cron list                    # List all jobs
-moltbot cron show <jobId>            # Job details
-moltbot cron edit <jobId> --message "Updated" --model opus
-moltbot cron run <jobId> --force     # Manual run
-moltbot cron runs --id <jobId> --limit 50  # View history
-moltbot cron remove <jobId>          # Delete job
+openclaw cron list                    # List all jobs
+openclaw cron show <jobId>            # Job details
+openclaw cron edit <jobId> --message "Updated" --model opus
+openclaw cron run <jobId> --force     # Manual run
+openclaw cron runs --id <jobId> --limit 50  # View history
+openclaw cron remove <jobId>          # Delete job
 ```
 
 ### Configuration
@@ -160,19 +160,19 @@ moltbot cron remove <jobId>          # Delete job
 {
   cron: {
     enabled: true,
-    store: "~/.clawdbot/cron/jobs.json",
+    store: "~/.openclaw/cron/jobs.json",
     maxConcurrentRuns: 1
   }
 }
 ```
 
-Disable: `cron.enabled: false` or `CLAWDBOT_SKIP_CRON=1`
+Disable: `cron.enabled: false` or `OPENCLAW_SKIP_CRON=1`
 
 ### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Nothing runs | Verify `cron.enabled: true`, no `CLAWDBOT_SKIP_CRON=1`, Gateway running |
+| Nothing runs | Verify `cron.enabled: true`, no `OPENCLAW_SKIP_CRON=1`, Gateway running |
 | Wrong delivery | Use explicit format like `-100…:topic:<id>` for Telegram topics |
 
 ## Webhooks
@@ -251,7 +251,7 @@ Real-time Gmail notifications via Google Cloud Pub/Sub.
       pubsub: {
         projectId: "your-project",
         topicName: "gmail-notifications",
-        subscriptionName: "moltbot-gmail"
+        subscriptionName: "openclaw-gmail"
       }
     }
   }
@@ -299,8 +299,8 @@ Real-time Gmail notifications via Google Cloud Pub/Sub.
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/automation/cron-jobs to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/tools-automation.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/tools-automation.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

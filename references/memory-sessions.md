@@ -2,7 +2,7 @@
 
 ## Memory System Overview
 
-Moltbot stores information as **plain Markdown files in the agent workspace**, treating files as the source of truth rather than RAM.
+OpenClaw stores information as **plain Markdown files in the agent workspace**, treating files as the source of truth rather than RAM.
 
 ## Memory Layers
 
@@ -35,7 +35,7 @@ Location: `MEMORY.md`
 
 ## Automatic Memory Flush
 
-Before context compaction, Moltbot triggers a silent agentic turn to write durable memories.
+Before context compaction, OpenClaw triggers a silent agentic turn to write durable memories.
 
 **Activation conditions:**
 - Context nears threshold: `contextWindow - reserveTokensFloor - softThresholdTokens`
@@ -95,7 +95,7 @@ The system indexes Markdown files for semantic searching.
 
 ### Embedding Storage
 
-SQLite at `~/.clawdbot/memory/<agentId>.sqlite`
+SQLite at `~/.openclaw/memory/<agentId>.sqlite`
 
 Optional sqlite-vec acceleration for faster vector queries.
 
@@ -242,7 +242,7 @@ Same person shares session even with `per-peer` isolation.
 
 ### Session Storage
 
-- **Location:** `~/.clawdbot/agents/<agentId>/sessions/`
+- **Location:** `~/.openclaw/agents/<agentId>/sessions/`
 - **Transcripts:** `<SessionId>.jsonl`
 - **Store:** `sessions.json` with `sessionKey → {sessionId, updatedAt, displayName, channel, subject, room, space}`
 - **Authority:** Gateway is source of truth
@@ -285,7 +285,7 @@ Same person shares session even with `per-peer` isolation.
 
 ### Pruning & Compaction
 
-- Moltbot trims old tool results from in-memory context before LLM calls
+- OpenClaw trims old tool results from in-memory context before LLM calls
 - Complete JSONL transcript history preserved
 - Pre-compaction memory flush writes durable notes at limits
 
@@ -312,9 +312,9 @@ Runtime override: `/send on|off|inherit`
 ## Monitoring
 
 ```bash
-moltbot sessions
-moltbot sessions --active 120
-moltbot sessions --json
+openclaw sessions
+openclaw sessions --active 120
+openclaw sessions --json
 ```
 
 In-chat: `/status`, `/context list`
@@ -348,8 +348,8 @@ In-chat: `/status`, `/context list`
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/concepts/memory to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/memory-sessions.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/memory-sessions.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

@@ -86,7 +86,7 @@ openclaw onboard
 
 Requires Node.js 22+ (Node.js 24 recommended). Installs as daemon service (launchd on macOS, systemd on Linux).
 
-**Current Version:** 2026.1.30 (as of 2026-02-01)
+**Current Version:** 2026.2.3-1 (as of 2026-02-08)
 
 ## Quick Reference
 
@@ -125,7 +125,7 @@ openclaw gateway restart
 
 Then access via: `https://<machine-name>.<tailnet>.ts.net/`
 
-See "Tailscale Integration" section below for full setup.
+See "Tailscale Integration" section below for full setup. See `references/web-interfaces.md` for complete dashboard, TUI, and WebChat documentation.
 
 ### Real-Time Monitoring (Learned 2026-02-03)
 
@@ -373,6 +373,8 @@ Routing uses deterministic, most-specific-wins matching:
 **Reference:** See `references/configuration.md` for complete config reference.
 
 ## Model Configuration (Learned 2026-02-01)
+
+**Reference:** See `references/model-providers.md` for the complete list of all supported providers (Anthropic, OpenAI, Google Gemini, OpenRouter, Bedrock, MiniMax, Moonshot, etc.), auth setup, and fallback configuration.
 
 ### Available Gemini Models
 
@@ -741,7 +743,7 @@ Then run: `openclaw channels login`
 
 ## Custom Scripts Location
 
-Custom scripts for operations not supported by Moltbot's API can be placed in the workspace scripts folder:
+Custom scripts for operations not supported by OpenClaw's API can be placed in the workspace scripts folder:
 
 ```
 <workspace>/scripts/
@@ -754,7 +756,7 @@ Custom scripts for operations not supported by Moltbot's API can be placed in th
 **Default location:** `<workspace>/scripts/whatsapp/` (wherever `agents.defaults.workspace` points)
 
 These scripts use direct Baileys access for operations like:
-- Listing all WhatsApp groups (not available via Moltbot API)
+- Listing all WhatsApp groups (not available via OpenClaw API)
 - Filtering groups by name/size
 - Passive message monitoring without agent response
 
@@ -1103,12 +1105,15 @@ Detailed documentation in `references/`:
 - **`tools-automation.md`** - cron, webhooks, polling
 - **`channels-messaging.md`** - WhatsApp, Telegram, Discord, Slack, Signal
 - **`channels-apple.md`** - iMessage configuration
-- **`configuration.md`** - moltbot.json, bootstrap files
+- **`configuration.md`** - openclaw.json, bootstrap files
 - **`commands-reference.md`** - CLI commands
 - **`skills-system.md`** - skills, ClawdHub
 - **`agent-architecture.md`** - agents, routing, sandboxing
 - **`memory-sessions.md`** - memory, session management
 - **`baileys-direct-access.md`** - Direct WhatsApp/Baileys access for advanced operations
+- **`model-providers.md`** - All supported model providers, auth profiles, fallbacks
+- **`web-interfaces.md`** - Dashboard, TUI, WebChat, Control UI
+- **`platform-wsl2.md`** - WSL2 setup, systemd, NVM PATH issues, networking
 
 ### Local Documentation
 
@@ -1180,13 +1185,16 @@ Use OpenClaw → Discover something → Update this skill → Future sessions be
 | `channels-apple.md` | iMessage setup |
 | `channels-messaging.md` | WhatsApp, Telegram, Discord, Slack, Signal |
 | `commands-reference.md` | CLI commands |
-| `configuration.md` | moltbot.json complete schema |
+| `configuration.md` | openclaw.json complete schema |
 | `memory-sessions.md` | Memory system, sessions |
 | `skills-system.md` | Skills, ClawdHub |
 | `tools-automation.md` | Cron, webhooks, polling |
 | `tools-browser.md` | Browser automation |
 | `tools-core.md` | Exec tool, security |
 | `tools-sessions.md` | Sessions, sub-agents |
+| `model-providers.md` | Model providers, auth profiles, fallbacks |
+| `web-interfaces.md` | Dashboard, TUI, WebChat, Control UI |
+| `platform-wsl2.md` | WSL2 setup, systemd, networking |
 
 ### Remember
 

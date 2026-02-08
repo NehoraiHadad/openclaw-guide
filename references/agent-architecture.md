@@ -2,7 +2,7 @@
 
 ## Overview
 
-Moltbot operates a single embedded agent runtime derived from p-mono. Session management and tool integration are handled independently by Moltbot.
+OpenClaw operates a single embedded agent runtime derived from p-mono. Session management and tool integration are handled independently by OpenClaw.
 
 ## Agent Components
 
@@ -48,10 +48,10 @@ Override with per-session workspaces:
 
 Transcripts stored as JSONL:
 ```
-~/.clawdbot/agents/<agentId>/sessions/<SessionId>.jsonl
+~/.openclaw/agents/<agentId>/sessions/<SessionId>.jsonl
 ```
 
-Session IDs are stable, Moltbot-assigned identifiers.
+Session IDs are stable, OpenClaw-assigned identifiers.
 
 ## Multi-Agent Setup
 
@@ -96,7 +96,7 @@ Session IDs are stable, Moltbot-assigned identifiers.
 
 ## Routing Architecture
 
-Moltbot uses **deterministic, most-specific-wins routing**.
+OpenClaw uses **deterministic, most-specific-wins routing**.
 
 ### Routing Priority
 
@@ -113,7 +113,7 @@ Moltbot uses **deterministic, most-specific-wins routing**.
 
 ```json5
 {
-  // bindings is at the ROOT level of moltbot.json
+  // bindings is at the ROOT level of openclaw.json
   bindings: [
     // Route WhatsApp channel to everyday agent
     {
@@ -481,9 +481,9 @@ For a "silent" agent that monitors groups without responding in the group:
 
 ## Local Documentation Reference
 
-The official multi-agent documentation is bundled with clawdbot at:
+The official multi-agent documentation is bundled with openclaw at:
 ```
-~/.nvm/versions/node/<version>/lib/node_modules/clawdbot/docs/concepts/multi-agent.md
+~/.nvm/versions/node/<version>/lib/node_modules/openclaw/docs/concepts/multi-agent.md
 ```
 
 Key examples from official docs:
@@ -496,11 +496,11 @@ Key examples from official docs:
 
 ## Continuous Improvement
 
-**Always verify with current docs:** Check the bundled docs at the clawdbot installation path, or fetch from https://docs.molt.bot/ to check for updates.
+**Always verify with current docs:** Check the bundled docs at the openclaw installation path, or fetch from https://docs.molt.bot/ to check for updates.
 
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/agent-architecture.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/agent-architecture.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage

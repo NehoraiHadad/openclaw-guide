@@ -1,6 +1,6 @@
 # Direct Baileys Access (WhatsApp)
 
-Moltbot uses the `@whiskeysockets/baileys` library for WhatsApp Web connections. In some cases, you may need to access Baileys directly to perform operations not exposed through Moltbot's API.
+OpenClaw uses the `@whiskeysockets/baileys` library for WhatsApp Web connections. In some cases, you may need to access Baileys directly to perform operations not exposed through OpenClaw's API.
 
 ## Scripts Location
 
@@ -19,23 +19,23 @@ The agent can run these scripts via the exec tool. See `TOOLS.md` in the workspa
 
 ## When to Use Direct Baileys Access
 
-- **List all groups** - Moltbot's `directory groups list` only reads from config, not live data
+- **List all groups** - OpenClaw's `directory groups list` only reads from config, not live data
 - **Passive monitoring** - No built-in way to receive messages without agent responding
 - **Bulk operations** - Get metadata for all groups/contacts at once
-- **Features not exposed** - Some Baileys functions aren't available in Moltbot
+- **Features not exposed** - Some Baileys functions aren't available in OpenClaw
 
 ## Important Limitations
 
 **WhatsApp allows only ONE active connection per account.** Running a Baileys script will:
-1. Disconnect Moltbot temporarily
-2. Moltbot auto-reconnects after the script exits
+1. Disconnect OpenClaw temporarily
+2. OpenClaw auto-reconnects after the script exits
 3. Brief interruption in service (a few seconds)
 
 ## Credentials Location
 
 Baileys auth files are stored at:
 ```
-~/.clawdbot/credentials/whatsapp/<accountId>/
+~/.openclaw/credentials/whatsapp/<accountId>/
 ```
 
 Files include:
@@ -52,28 +52,28 @@ Location: `~/clawd/scripts/whatsapp/list-groups.mjs`
 /**
  * List all WhatsApp groups from Baileys connection
  *
- * WARNING: This will briefly disconnect Moltbot. It will auto-reconnect after.
+ * WARNING: This will briefly disconnect OpenClaw. It will auto-reconnect after.
  *
  * Usage: node list-whatsapp-groups.mjs [accountId]
  * Example: node list-whatsapp-groups.mjs personal
  */
 
-// Use Baileys from Moltbot's installation
-const CLAWDBOT_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/clawdbot/node_modules';
-const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${CLAWDBOT_PATH}/@whiskeysockets/baileys/lib/index.js`);
-const pino = (await import(`${CLAWDBOT_PATH}/pino/pino.js`)).default;
+// Use Baileys from OpenClaw's installation
+const OPENCLAW_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/openclaw/node_modules';
+const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${OPENCLAW_PATH}/@whiskeysockets/baileys/lib/index.js`);
+const pino = (await import(`${OPENCLAW_PATH}/pino/pino.js`)).default;
 
 import path from 'path';
 import os from 'os';
 
 const accountId = process.argv[2] || 'personal';
-const authDir = path.join(os.homedir(), '.clawdbot', 'credentials', 'whatsapp', accountId);
+const authDir = path.join(os.homedir(), '.openclaw', 'credentials', 'whatsapp', accountId);
 
 console.log(`Using auth from: ${authDir}`);
 console.log(`Account: ${accountId}`);
 console.log('');
-console.log('WARNING: This will briefly disconnect Moltbot from WhatsApp.');
-console.log('Moltbot will auto-reconnect after this script exits.');
+console.log('WARNING: This will briefly disconnect OpenClaw from WhatsApp.');
+console.log('OpenClaw will auto-reconnect after this script exits.');
 console.log('');
 
 const logger = pino({ level: 'silent' });
@@ -224,11 +224,11 @@ function matchesExcludes(groupName, excludes) {
 }
 
 async function fetchGroups() {
-  const CLAWDBOT_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/clawdbot/node_modules';
-  const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${CLAWDBOT_PATH}/@whiskeysockets/baileys/lib/index.js`);
-  const pino = (await import(`${CLAWDBOT_PATH}/pino/pino.js`)).default;
+  const OPENCLAW_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/openclaw/node_modules';
+  const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${OPENCLAW_PATH}/@whiskeysockets/baileys/lib/index.js`);
+  const pino = (await import(`${OPENCLAW_PATH}/pino/pino.js`)).default;
 
-  const authDir = path.join(os.homedir(), '.clawdbot', 'credentials', 'whatsapp', accountId);
+  const authDir = path.join(os.homedir(), '.openclaw', 'credentials', 'whatsapp', accountId);
   if (!jsonOutput) console.log(`Connecting to WhatsApp (account: ${accountId})...\n`);
 
   const logger = pino({ level: 'silent' });
@@ -389,21 +389,21 @@ For true passive monitoring (receives all messages, logs to file, no agent wake-
  * Passive WhatsApp message monitor
  * Logs all messages to file without responding
  *
- * WARNING: Replaces Moltbot connection. Run one or the other.
+ * WARNING: Replaces OpenClaw connection. Run one or the other.
  *
  * Usage: node whatsapp-passive-monitor.mjs [accountId]
  */
 
-const CLAWDBOT_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/clawdbot/node_modules';
-const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${CLAWDBOT_PATH}/@whiskeysockets/baileys/lib/index.js`);
-const pino = (await import(`${CLAWDBOT_PATH}/pino/pino.js`)).default;
+const OPENCLAW_PATH = '/home/nehor/.nvm/versions/node/v24.13.0/lib/node_modules/openclaw/node_modules';
+const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = await import(`${OPENCLAW_PATH}/@whiskeysockets/baileys/lib/index.js`);
+const pino = (await import(`${OPENCLAW_PATH}/pino/pino.js`)).default;
 
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
 
 const accountId = process.argv[2] || 'personal';
-const authDir = path.join(os.homedir(), '.clawdbot', 'credentials', 'whatsapp', accountId);
+const authDir = path.join(os.homedir(), '.openclaw', 'credentials', 'whatsapp', accountId);
 const logFile = path.join(os.homedir(), `whatsapp-messages-${accountId}.jsonl`);
 
 console.log(`Passive monitor for account: ${accountId}`);
@@ -488,21 +488,21 @@ main().catch((err) => {
 ### Usage
 
 ```bash
-# Start passive monitor (replaces Moltbot connection)
+# Start passive monitor (replaces OpenClaw connection)
 node ~/clawd/scripts/whatsapp/passive-monitor.mjs personal
 
 # Messages logged to ~/whatsapp-messages-personal.jsonl
 
-# When done, restart Moltbot
-clawdbot gateway restart
+# When done, restart OpenClaw
+openclaw gateway restart
 ```
 
-## Integration with Moltbot Agent (Future)
+## Integration with OpenClaw Agent (Future)
 
 These scripts can potentially be converted to agent tools:
 1. Create an MCP server that exposes Baileys functions
 2. Or use the exec tool to run scripts and parse output
-3. Or request Moltbot to add native support for these operations
+3. Or request OpenClaw to add native support for these operations
 
 ## Known Limitations
 
@@ -530,14 +530,14 @@ These scripts can potentially be converted to agent tools:
 
 | Issue | Solution |
 |-------|----------|
-| "Connection closed" immediately | Moltbot may have reconnected; stop Moltbot first |
+| "Connection closed" immediately | OpenClaw may have reconnected; stop OpenClaw first |
 | "Auth file not found" | Check `accountId` matches existing account |
 | Script hangs | Connection timeout; check network/WhatsApp status |
-| QR code requested | Account not linked; run `clawdbot channels login` first |
+| QR code requested | Account not linked; run `openclaw channels login` first |
 
 ## Continuous Improvement
 
 When discovering new Baileys capabilities or patterns:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/baileys-direct-access.md`
+1. Update this file at `~/.claude/skills/openclaw-guide/references/baileys-direct-access.md`
 2. Add new script examples for common operations
 3. Document any gotchas or edge cases discovered

@@ -31,7 +31,7 @@ Container-based isolation; runs `sh -lc` login shell internally. No approvals ne
 
 #### Gateway
 
-Host machine execution with approval controls via `~/.clawdbot/exec-approvals.json`. Merges your login-shell `PATH` into the exec environment unless the call already sets `env.PATH`.
+Host machine execution with approval controls via `~/.openclaw/exec-approvals.json`. Merges your login-shell `PATH` into the exec environment unless the call already sets `env.PATH`.
 
 #### Node
 
@@ -198,8 +198,8 @@ See `references/skills-system.md` → "Bot-Orchestrated Workflow Skills" for the
 
 **Always verify with current docs:** Before implementing, fetch the relevant page from https://docs.molt.bot/tools/exec to check for updates.
 
-When using Clawdbot and discovering undocumented features, corrections, or better practices:
-1. Update this file at `~/.claude/skills/clawdbot-guide/references/tools-core.md`
+When using OpenClaw and discovering undocumented features, corrections, or better practices:
+1. Update this file at `~/.claude/skills/openclaw-guide/references/tools-core.md`
 2. Add new sections for newly discovered features
 3. Correct any outdated or inaccurate information
 4. Add practical examples from real usage
