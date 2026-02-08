@@ -86,7 +86,7 @@ openclaw onboard
 
 Requires Node.js 22+ (Node.js 24 recommended). Installs as daemon service (launchd on macOS, systemd on Linux).
 
-**Current Version:** 2026.2.3-1 (as of 2026-02-08)
+**Current Version:** 2026.2.6-3 (as of 2026-02-08)
 
 ## Quick Reference
 
@@ -727,6 +727,8 @@ Then run: `openclaw channels login`
   }
 }
 ```
+
+**Valid sandbox modes:** `"off"` (disabled), `"non-main"` (all except main agent), `"all"` (every agent). Per-agent override removes the mode key to inherit defaults. (Learned 2026-02-08)
 
 ### Configure Elevated Mode
 
